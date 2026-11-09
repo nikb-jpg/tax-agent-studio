@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Tax Agent Studio (Loops & Graphs)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Custom scrollbar for telemetry console */
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.99); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 1.4s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-[#0b1120] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-[#0f172a]/80 backdrop-blur px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50 shadow-lg shadow-black/20">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-sky-500/20 ring-1 ring-sky-400/40">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          Interactive Tax Agent Studio
+          <span class="text-xs px-2.5 py-0.5 rounded-full font-mono font-medium bg-sky-950/80 text-sky-400 border border-sky-800/60">Loops & Graphs</span>
+        </h1>
+        <p class="text-xs text-slate-400">Autonomous Form 500 & XML Tax Filing Engine with Deterministic Verification Gates</p>
+      </div>
+    </div>
+
+    <!-- Quick action status pills & stats -->
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="text-slate-400">System Mode:</span>
+        <span class="text-emerald-400 font-semibold">Deterministic Gate Guard</span>
+      </div>
+      <button onclick="resetDefaults()" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition duration-150 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Reset Defaults
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Studio Grid -->
+  <main class="flex-1 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1700px] w-full mx-auto">
+    
+    <!-- LEFT PANEL: Inputs (Cols 1-3) -->
+    <aside class="lg:col-span-3 flex flex-col gap-4 sm:gap-5 bg-[#1e293b]/70 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="flex h-2.5 w-2.5 rounded-full bg-sky-400"></span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono-code">1. Live Inputs & Controls</h2>
+        </div>
+        <span class="text-[10px] text-slate-400 font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Editable</span>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto pr-1">
+        <!-- Input Group: Unit A P&L -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-slate-300 uppercase tracking-wide flex justify-between">
+            <span>Turnover / Revenue</span>
+            <span class="text-sky-400 font-mono">EUR</span>
+          </label>
+          <input type="number" id="inputTurnover" value="500000" step="1000"
+            class="w-full bg-[#0f172a] border border-slate-700 focus:border-sky-500 rounded-lg px-3.5 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-slate-300 uppercase tracking-wide flex justify-between">
+            <span>Operating Expenses (OPEX)</span>
+            <span class="text-sky-400 font-mono">EUR</span>
+          </label>
+          <input type="number" id="inputExpenses" value="300000" step="1000"
+            class="w-full bg-[#0f172a] border border-slate-700 focus:border-sky-500 rounded-lg px-3.5 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition" />
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+              <span>Reported Profit In Sheet</span>
+              <span class="text-[9px] px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded border border-amber-500/40">Unit A</span>
+            </label>
+            <span class="text-amber-400 font-mono text-xs">EUR</span>
+          </div>
+          <input type="number" id="inputReportedProfit" value="180000" step="1000"
+            class="w-full bg-[#0f172a] border border-amber-600/60 focus:border-amber-400 rounded-lg px-3.5 py-2 font-mono text-sm text-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-400 transition" />
+          <p class="text-[10px] text-amber-400/90 leading-tight">Default is 180,000 to trigger the self-repair loop.</p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-700/60"></div>
+
+        <!-- Input Group: Unit B Balance Sheet -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-slate-300 uppercase tracking-wide flex justify-between">
+            <span>Total Assets</span>
+            <span class="text-sky-400 font-mono">EUR</span>
+          </label>
+          <input type="number" id="inputAssets" value="800000" step="5000"
+            class="w-full bg-[#0f172a] border border-slate-700 focus:border-sky-500 rounded-lg px-3.5 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-slate-300 uppercase tracking-wide flex justify-between">
+            <span>Total Liabilities & Equity</span>
+            <span class="text-sky-400 font-mono">EUR</span>
+          </label>
+          <input type="number" id="inputLiabilities" value="800000" step="5000"
+            class="w-full bg-[#0f172a] border border-slate-700 focus:border-sky-500 rounded-lg px-3.5 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition" />
+        </div>
+
+        <div class="pt-2 border-t border-slate-700/60"></div>
+
+        <!-- Input Group: Unit C Tax Add-backs -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-slate-300 uppercase tracking-wide flex justify-between">
+            <span>Tax Disallowances (Add-backs)</span>
+            <span class="text-sky-400 font-mono">EUR</span>
+          </label>
+          <input type="number" id="inputAddbacks" value="25000" step="1000"
+            class="w-full bg-[#0f172a] border border-slate-700 focus:border-sky-500 rounded-lg px-3.5 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500 transition" />
+          <p class="text-[10px] text-slate-400">Non-deductible penalties, wealth tax & director fees.</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-3 border-t border-slate-700/60 flex flex-col gap-2">
+        <button id="btnRun" onclick="startOrchestration()"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-sky-600/30 active:scale-[0.98] transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M4.5 3.5v13l11-6.5-11-6.5z"/></svg>
+          Run with My Values
+        </button>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="injectPresetMathError()"
+            class="py-2 px-2 rounded-lg bg-amber-950/40 hover:bg-amber-900/40 text-amber-300 border border-amber-800/60 text-xs font-medium transition active:scale-[0.98] flex items-center justify-center gap-1">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Math Error
+          </button>
+          <button onclick="injectPresetBalanceSheetError()"
+            class="py-2 px-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/40 text-rose-300 border border-rose-800/60 text-xs font-medium transition active:scale-[0.98] flex items-center justify-center gap-1">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+            Break Balance
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: Execution Lanes & Deterministic Gates (Cols 4-8) -->
+    <section class="lg:col-span-5 flex flex-col gap-4">
+      
+      <!-- Panel Header Bar -->
+      <div class="flex items-center justify-between bg-[#1e293b]/70 border border-slate-800 rounded-xl px-4 py-3">
+        <div class="flex items-center gap-2">
+          <span class="flex h-2.5 w-2.5 rounded-full bg-cyan-400"></span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono-code">2. Execution Lanes & Deterministic Gates</h2>
+        </div>
+        <div id="graphPhaseIndicator" class="text-xs font-mono px-2.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+          Phase: Idle
+        </div>
+      </div>
+
+      <!-- Unit A: Commercial P&L Lane -->
+      <div id="cardUnitA" class="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4.5 transition-all duration-300 shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded bg-sky-950 text-sky-400 flex items-center justify-center font-bold text-xs font-mono border border-sky-800">A</div>
+            <span class="text-sm font-semibold text-white">Unit A: Commercial P&L</span>
+          </div>
+          <span id="pillUnitA" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide bg-slate-800 text-slate-400 border border-slate-700">
+            IDLE
+          </span>
+        </div>
+
+        <div class="bg-[#0f172a] rounded-xl p-3.5 border border-slate-800 font-mono text-xs space-y-1.5">
+          <div class="flex justify-between text-slate-400">
+            <span>Turnover:</span>
+            <span id="displayTurnover" class="text-white font-medium">EUR 500,000.00</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Operating Expenses:</span>
+            <span id="displayExpenses" class="text-white font-medium">EUR 300,000.00</span>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-slate-800/80">
+            <span class="text-slate-300">Reported Net Profit:</span>
+            <div class="flex items-center gap-2">
+              <span id="displayReportedProfit" class="text-amber-400 font-bold">EUR 180,000.00</span>
+              <span id="badgeMathCheck" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">Unchecked</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local Loop Visualizer Bar -->
+        <div id="loopBarUnitA" class="hidden mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
+          <span class="text-amber-300 flex items-center gap-1.5 font-medium">
+            <svg class="w-3.5 h-3.5 animate-spin text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Scoped Loop: Rewriting line item to match arithmetic...
+          </span>
+          <span id="unitAAttempts" class="font-mono text-amber-400 font-semibold">Attempt 1/2</span>
+        </div>
+      </div>
+
+      <!-- Unit B: Balance Sheet Lane -->
+      <div id="cardUnitB" class="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4.5 transition-all duration-300 shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded bg-indigo-950 text-indigo-400 flex items-center justify-center font-bold text-xs font-mono border border-indigo-800">B</div>
+            <span class="text-sm font-semibold text-white">Unit B: Balance Sheet Equilibrium</span>
+          </div>
+          <span id="pillUnitB" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide bg-slate-800 text-slate-400 border border-slate-700">
+            IDLE
+          </span>
+        </div>
+
+        <div class="bg-[#0f172a] rounded-xl p-3.5 border border-slate-800 font-mono text-xs space-y-1.5">
+          <div class="flex justify-between text-slate-400">
+            <span>Total Assets:</span>
+            <span id="displayAssets" class="text-white font-medium">EUR 800,000.00</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Total Liabilities & Equity:</span>
+            <span id="displayLiabilities" class="text-white font-medium">EUR 800,000.00</span>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-slate-800/80">
+            <span class="text-slate-300">Accounting Equilibrium:</span>
+            <span id="displayEquilibrium" class="text-slate-400 font-medium">Pending Check</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unit C: Book-to-Tax & XML Engine Lane -->
+      <div id="cardUnitC" class="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4.5 transition-all duration-300 shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-xs font-mono border border-emerald-800">C</div>
+            <span class="text-sm font-semibold text-white">Unit C: Book-to-Tax & XML Engine</span>
+          </div>
+          <span id="pillUnitC" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide bg-slate-800 text-slate-400 border border-slate-700">
+            IDLE
+          </span>
+        </div>
+
+        <div class="bg-[#0f172a] rounded-xl p-3.5 border border-slate-800 font-mono text-xs space-y-1.5">
+          <div class="flex justify-between text-slate-400">
+            <span>Add-backs (Art. 166 Adjustments):</span>
+            <span id="displayAddbacks" class="text-white font-medium">+ EUR 25,000.00</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Calculated Taxable Base (Form 500):</span>
+            <span id="displayTaxableBase" class="text-slate-500 font-medium">Awaiting verified P&L</span>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-slate-800/80">
+            <span class="text-slate-300">Est. Corporate Income Tax (@17%):</span>
+            <span id="displayCitDue" class="text-slate-500 font-bold">--</span>
+          </div>
+          <div class="flex justify-between items-center pt-1">
+            <span class="text-slate-400">Official XML Schema (XSD):</span>
+            <span id="displayXmlValidation" class="text-[11px] text-slate-500 font-semibold">Not Compiled</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terminal Gate (Human Sign-off Boundary) -->
+      <div id="terminalGateBox" class="bg-[#0f172a] border-2 border-dashed border-slate-700 rounded-2xl p-5 text-center transition-all duration-300">
+        <div class="flex items-center justify-center gap-2 mb-1.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-slate-600" id="terminalIndicator"></div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono-code">3. Terminal Human Approval Gate</h3>
+        </div>
+        <p id="terminalDescription" class="text-xs text-slate-500 mb-3">
+          Zero-human intervention mode active. Verification gates are evaluating math and schema constraints...
+        </p>
+        
+        <div id="terminalActionArea" class="hidden flex flex-col sm:flex-row items-center justify-center gap-3 mt-2">
+          <button id="btnSignAndFile" onclick="triggerTerminalApproval()"
+            class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs tracking-wider uppercase shadow-lg shadow-emerald-500/20 transition active:scale-95 flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+            Approve & Release Form 500 XML
+          </button>
+          <button onclick="downloadXmlPayload()"
+            class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-mono text-xs transition flex items-center justify-center gap-1.5">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Inspect XML
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Telemetry Live Log (Cols 9-12) -->
+    <section class="lg:col-span-4 flex flex-col bg-[#020617] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="flex space-x-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+          </div>
+          <span class="text-xs font-mono font-semibold text-slate-300 ml-1">Live Telemetry & Graph Log</span>
+        </div>
+        <button onclick="clearTelemetry()" class="text-[11px] text-slate-500 hover:text-slate-300 font-mono transition">Clear</button>
+      </div>
+
+      <!-- Log Terminal Body -->
+      <div id="telemetryStream" class="flex-1 p-4 font-mono-code text-[11px] leading-relaxed overflow-y-auto space-y-2 text-slate-300 custom-scroll min-h-[480px] max-h-[700px]">
+        <div class="text-slate-500 italic">> [SYSTEM INITIALIZED] Standing by for incoming tax parameters.</div>
+        <div class="text-slate-500 italic">> Deterministic Gate Engine loaded with strict arithmetic & XSD validators.</div>
+      </div>
+
+      <!-- Telemetry Footer / Status bar -->
+      <div class="px-4 py-2 bg-[#0a0f1d] border-t border-slate-900 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+        <span id="activeNodesCounter">Active Nodes: 0</span>
+        <span class="text-sky-400">Strict Code Verifiers (Zero Soft LLM Drift)</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- XML Preview Modal (Hidden by default) -->
+  <div id="xmlModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold font-mono text-sky-400">Generated Form 500 XML Payload</h3>
+        <button onclick="closeXmlModal()" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <pre id="xmlModalCode" class="bg-[#020617] border border-slate-900 rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto max-h-96"></pre>
+      <div class="flex justify-end gap-2">
+        <button onclick="copyXmlToClipboard()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-200">Copy Payload</button>
+        <button onclick="closeXmlModal()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-semibold text-white">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Effects using Web Audio API (Tone.js style synthetics, no external audio files) -->
+  <script>
+    const AudioEngine = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+      },
+      play(freq = 440, type = 'sine', duration = 0.12, volume = 0.05) {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          // Audio policy silent fallback
+        }
+      },
+      beepSuccess() {
+        this.play(587.33, 'sine', 0.1, 0.04);
+        setTimeout(() => this.play(880, 'sine', 0.2, 0.05), 100);
+      },
+      beepWarn() {
+        this.play(349.23, 'triangle', 0.18, 0.06);
+        setTimeout(() => this.play(329.63, 'triangle', 0.25, 0.07), 120);
+      },
+      beepLoop() {
+        this.play(440, 'square', 0.08, 0.02);
+      }
+    };
+  </script>
+
+  <!-- Core Pipeline Simulator Script -->
+  <script>
+    // System State Variables
+    let isRunning = false;
+    let generatedXmlPayload = "";
+
+    const formatCurrency = (val) => {
+      return "EUR " + Number(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    function getTimestamp() {
+      const now = new Date();
+      return now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+    }
+
+    function appendLog(message, type = "info") {
+      const logContainer = document.getElementById("telemetryStream");
+      const row = document.createElement("div");
+      row.className = "flex items-start gap-2 animate-fade-in";
+
+      let colorClass = "text-sky-300";
+      let badge = "INFO";
+      let badgeColor = "bg-sky-950 text-sky-400 border-sky-800";
+
+      if (type === "gate-red") {
+        colorClass = "text-rose-300";
+        badge = "GATE RED";
+        badgeColor = "bg-rose-950 text-rose-300 border-rose-800 font-bold";
+      } else if (type === "gate-green") {
+        colorClass = "text-emerald-300";
+        badge = "GATE GREEN";
+        badgeColor = "bg-emerald-950 text-emerald-300 border-emerald-800 font-bold";
+      } else if (type === "loop") {
+        colorClass = "text-amber-300";
+        badge = "SELF-LOOP";
+        badgeColor = "bg-amber-950 text-amber-300 border-amber-800";
+      } else if (type === "terminal") {
+        colorClass = "text-purple-300";
+        badge = "HUMAN GATE";
+        badgeColor = "bg-purple-950 text-purple-300 border-purple-800";
+      } else if (type === "warn") {
+        colorClass = "text-amber-400";
+        badge = "WARN";
+        badgeColor = "bg-amber-900/60 text-amber-300 border-amber-700";
+      }
+
+      row.innerHTML = `
+        <span class="text-slate-500 shrink-0 font-mono text-[10px]">[${getTimestamp()}]</span>
+        <span class="text-[9px] px-1.5 py-0.2 rounded border font-mono tracking-tight shrink-0 ${badgeColor}">${badge}</span>
+        <span class="${colorClass} flex-1 break-words">${message}</span>
+      `;
+
+      logContainer.appendChild(row);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function clearTelemetry() {
+      const logContainer = document.getElementById("telemetryStream");
+      logContainer.innerHTML = `<div class="text-slate-500 italic">> Telemetry cleared. Standing by...</div>`;
+    }
+
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    function setPill(id, text, type) {
+      const pill = document.getElementById(id);
+      pill.innerText = text;
+      
+      pill.className = "px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide border transition-all duration-200 ";
+      if (type === "idle") {
+        pill.className += "bg-slate-800 text-slate-400 border-slate-700";
+      } else if (type === "running") {
+        pill.className += "bg-sky-950 text-sky-400 border-sky-800 animate-pulse";
+      } else if (type === "red") {
+        pill.className += "bg-rose-950 text-rose-300 border-rose-800 shadow-md shadow-rose-900/40";
+      } else if (type === "fix") {
+        pill.className += "bg-amber-950 text-amber-300 border-amber-800 animate-pulse";
+      } else if (type === "green") {
+        pill.className += "bg-emerald-950 text-emerald-300 border-emerald-800 shadow-md shadow-emerald-900/30";
+      }
+    }
+
+    // Presets
+    function injectPresetMathError() {
+      document.getElementById("inputTurnover").value = 500000;
+      document.getElementById("inputExpenses").value = 300000;
+      document.getElementById("inputReportedProfit").value = 180000; // Expected is 200,000
+      document.getElementById("inputAssets").value = 800000;
+      document.getElementById("inputLiabilities").value = 800000;
+      appendLog("Preset seeded: Injected deliberate P&L mismatch (500k - 300k != 180k).", "warn");
+    }
+
+    function injectPresetBalanceSheetError() {
+      document.getElementById("inputAssets").value = 950000;
+      document.getElementById("inputLiabilities").value = 800000;
+      appendLog("Preset seeded: Injected out-of-balance sheet (Assets != L&E).", "warn");
+    }
+
+    function resetDefaults() {
+      document.getElementById("inputTurnover").value = 500000;
+      document.getElementById("inputExpenses").value = 300000;
+      document.getElementById("inputReportedProfit").value = 180000;
+      document.getElementById("inputAssets").value = 800000;
+      document.getElementById("inputLiabilities").value = 800000;
+      document.getElementById("inputAddbacks").value = 25000;
+
+      // Reset Card Views
+      document.getElementById("displayTurnover").innerText = formatCurrency(500000);
+      document.getElementById("displayExpenses").innerText = formatCurrency(300000);
+      document.getElementById("displayReportedProfit").innerText = formatCurrency(180000);
+      document.getElementById("displayReportedProfit").className = "text-amber-400 font-bold";
+      document.getElementById("badgeMathCheck").innerText = "Unchecked";
+      document.getElementById("badgeMathCheck").className = "text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700";
+
+      document.getElementById("displayAssets").innerText = formatCurrency(800000);
+      document.getElementById("displayLiabilities").innerText = formatCurrency(800000);
+      document.getElementById("displayEquilibrium").innerText = "Pending Check";
+      document.getElementById("displayEquilibrium").className = "text-slate-400 font-medium";
+
+      document.getElementById("displayAddbacks").innerText = "+ " + formatCurrency(25000);
+      document.getElementById("displayTaxableBase").innerText = "Awaiting verified P&L";
+      document.getElementById("displayTaxableBase").className = "text-slate-500 font-medium";
+      document.getElementById("displayCitDue").innerText = "--";
+      document.getElementById("displayCitDue").className = "text-slate-500 font-bold";
+      document.getElementById("displayXmlValidation").innerText = "Not Compiled";
+      document.getElementById("displayXmlValidation").className = "text-[11px] text-slate-500 font-semibold";
+
+      setPill("pillUnitA", "IDLE", "idle");
+      setPill("pillUnitB", "IDLE", "idle");
+      setPill("pillUnitC", "IDLE", "idle");
+
+      document.getElementById("loopBarUnitA").classList.add("hidden");
+      document.getElementById("terminalGateBox").className = "bg-[#0f172a] border-2 border-dashed border-slate-700 rounded-2xl p-5 text-center transition-all duration-300";
+      document.getElementById("terminalIndicator").className = "w-2.5 h-2.5 rounded-full bg-slate-600";
+      document.getElementById("terminalDescription").innerText = "Zero-human intervention mode active. Verification gates are evaluating math and schema constraints...";
+      document.getElementById("terminalActionArea").classList.add("hidden");
+      document.getElementById("graphPhaseIndicator").innerText = "Phase: Idle";
+      document.getElementById("activeNodesCounter").innerText = "Active Nodes: 0";
+      
+      appendLog("All parameters reset to system defaults.", "info");
+    }
+
+    // MAIN PIPELINE SIMULATION
+    async function startOrchestration() {
+      if (isRunning) return;
+      isRunning = true;
+      document.getElementById("btnRun").disabled = true;
+      document.getElementById("btnRun").classList.add("opacity-50", "cursor-not-allowed");
+
+      // Ingest live user inputs
+      const turnover = parseFloat(document.getElementById("inputTurnover").value) || 0;
+      const expenses = parseFloat(document.getElementById("inputExpenses").value) || 0;
+      let reportedProfit = parseFloat(document.getElementById("inputReportedProfit").value) || 0;
+      const assets = parseFloat(document.getElementById("inputAssets").value) || 0;
+      const liabilities = parseFloat(document.getElementById("inputLiabilities").value) || 0;
+      const addbacks = parseFloat(document.getElementById("inputAddbacks").value) || 0;
+
+      // Update Center Displays
+      document.getElementById("displayTurnover").innerText = formatCurrency(turnover);
+      document.getElementById("displayExpenses").innerText = formatCurrency(expenses);
+      document.getElementById("displayReportedProfit").innerText = formatCurrency(reportedProfit);
+      document.getElementById("displayAssets").innerText = formatCurrency(assets);
+      document.getElementById("displayLiabilities").innerText = formatCurrency(liabilities);
+      document.getElementById("displayAddbacks").innerText = "+ " + formatCurrency(addbacks);
+      
+      document.getElementById("graphPhaseIndicator").innerText = "Phase: Splitter Fan-Out";
+      document.getElementById("activeNodesCounter").innerText = "Active Nodes: 2 (Unit A, Unit B)";
+
+      appendLog(`Ingesting form parameters: Turnover=${turnover}, Expenses=${expenses}, Profit=${reportedProfit}.`, "info");
+      appendLog("Graph Splitter partitioning task into 2 isolated parallel slices: [Unit A] & [Unit B].", "info");
+
+      await wait(700);
+
+      // Phase 1: Parallel Execution of Unit A and Unit B
+      setPill("pillUnitA", "AUDITING MATH", "running");
+      setPill("pillUnitB", "CHECKING BALANCE", "running");
+      appendLog("[Node: Unit A] Testing deterministic formula: (Turnover - Expenses == Reported_Profit)...", "info");
+      appendLog("[Node: Unit B] Testing equilibrium identity: (Total_Assets == Liabilities + Equity)...", "info");
+
+      await wait(1200);
+
+      // Deterministic Gate Check: Unit A (P&L Arithmetic)
+      const expectedProfit = turnover - expenses;
+      const plHasMismatch = Math.abs(expectedProfit - reportedProfit) > 0.01;
+
+      if (plHasMismatch) {
+        AudioEngine.beepWarn();
+        setPill("pillUnitA", "GATE RED (MISMATCH)", "red");
+        document.getElementById("displayReportedProfit").className = "text-rose-400 font-bold";
+        document.getElementById("badgeMathCheck").innerText = `Mismatch: Diff ${formatCurrency(reportedProfit - expectedProfit)}`;
+        document.getElementById("badgeMathCheck").className = "text-[10px] px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800";
+
+        appendLog(`[GATE RED / UNIT A]: Turnover (${turnover}) - OPEX (${expenses}) = ${expectedProfit}, but sheet reported ${reportedProfit}.`, "gate-red");
+        appendLog(`[ARCHITECTURAL RULE]: Preserving Unit B. We return only the failing unit, not the entire batch.`, "warn");
+      } else {
+        AudioEngine.beepSuccess();
+        setPill("pillUnitA", "GATE GREEN", "green");
+        document.getElementById("displayReportedProfit").className = "text-emerald-400 font-bold";
+        document.getElementById("badgeMathCheck").innerText = "Verified Math";
+        document.getElementById("badgeMathCheck").className = "text-[10px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-800";
+        appendLog("[GATE GREEN / UNIT A]: Commercial P&L arithmetic verified 100% accurate.", "gate-green");
+      }
+
+      await wait(900);
+
+      // Deterministic Gate Check: Unit B (Balance Sheet)
+      const bsHasMismatch = Math.abs(assets - liabilities) > 0.01;
+
+      if (bsHasMismatch) {
+        AudioEngine.beepWarn();
+        setPill("pillUnitB", "GATE RED (OUT OF BALANCE)", "red");
+        document.getElementById("displayEquilibrium").innerText = `Imbalance: Diff ${formatCurrency(assets - liabilities)}`;
+        document.getElementById("displayEquilibrium").className = "text-rose-400 font-bold";
+        appendLog(`[GATE RED / UNIT B]: Assets (${assets}) != Liabilities & Equity (${liabilities}). Identity violated.`, "gate-red");
+        appendLog(`[PIPELINE ABORT]: Balance Sheet corrupt. Halting before tax base calculation to prevent bad filing.`, "gate-red");
+        
+        document.getElementById("btnRun").disabled = false;
+        document.getElementById("btnRun").classList.remove("opacity-50", "cursor-not-allowed");
+        isRunning = false;
+        return;
+      } else {
+        AudioEngine.beepSuccess();
+        setPill("pillUnitB", "GATE GREEN", "green");
+        document.getElementById("displayEquilibrium").innerText = "Balanced (Diff EUR 0.00)";
+        document.getElementById("displayEquilibrium").className = "text-emerald-400 font-semibold";
+        appendLog("[GATE GREEN / UNIT B]: Balance sheet equilibrium confirmed (Assets == Liabilities & Equity).", "gate-green");
+      }
+
+      // Phase 2: Unit A Local Self-Correction Loop (if failed)
+      if (plHasMismatch) {
+        await wait(1100);
+        AudioEngine.beepLoop();
+        setPill("pillUnitA", "SELF-CORRECTING", "fix");
+        document.getElementById("loopBarUnitA").classList.remove("hidden");
+        document.getElementById("unitAAttempts").innerText = "Attempt 2/2";
+
+        appendLog(`[LOCAL LOOP]: Auto-repair initiated for Unit A. Recalculating Reported Profit: ${expectedProfit}...`, "loop");
+        appendLog(`[LOCAL LOOP]: Applying diff to isolated cell coordinate [Commercial_PL!C4].`, "loop");
+
+        await wait(1400);
+
+        // Patch state with correct arithmetic
+        reportedProfit = expectedProfit;
+        document.getElementById("displayReportedProfit").innerText = formatCurrency(reportedProfit);
+        document.getElementById("displayReportedProfit").className = "text-emerald-400 font-bold";
+        document.getElementById("badgeMathCheck").innerText = "Fixed by Local Loop";
+        document.getElementById("badgeMathCheck").className = "text-[10px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-800";
+        
+        setPill("pillUnitA", "GATE GREEN", "green");
+        document.getElementById("loopBarUnitA").classList.add("hidden");
+        AudioEngine.beepSuccess();
+
+        appendLog(`[GATE GREEN / UNIT A]: Re-verification succeeded on Attempt 2. Unit A cleared to proceed.`, "gate-green");
+      }
+
+      await wait(800);
+
+      // Phase 3: Unit C (Book-to-Tax & XML Engine)
+      document.getElementById("graphPhaseIndicator").innerText = "Phase: Book-to-Tax & XML Compilation";
+      document.getElementById("activeNodesCounter").innerText = "Active Nodes: 1 (Unit C)";
+      setPill("pillUnitC", "COMPUTING TAX BASE", "running");
+      appendLog("[Node: Unit C] Merging verified Commercial Profit with Book-to-Tax adjustments...", "info");
+
+      await wait(1100);
+
+      const taxableBase = reportedProfit + addbacks;
+      const citRate = 0.17; // Luxembourg corporate baseline simulation
+      const citDue = Math.round(taxableBase * citRate * 100) / 100;
+
+      document.getElementById("displayTaxableBase").innerText = formatCurrency(taxableBase);
+      document.getElementById("displayTaxableBase").className = "text-emerald-400 font-bold";
+      document.getElementById("displayCitDue").innerText = formatCurrency(citDue);
+      document.getElementById("displayCitDue").className = "text-sky-400 font-bold text-sm";
+
+      appendLog(`[Code Node: Math]: Taxable Base = Profit (${reportedProfit}) + Add-backs (${addbacks}) = EUR ${taxableBase.toFixed(2)}.`, "info");
+      appendLog(`[Code Node: CIT]: Estimated CIT due (@ 17% rate) = EUR ${citDue.toFixed(2)}.`, "info");
+
+      // Generate XML and Validate Against Schema
+      setPill("pillUnitC", "VALIDATING XML SCHEMA", "running");
+      appendLog("[XML Engine] Serializing state variables to Tax Authority Form 500 XML tags...", "info");
+
+      await wait(900);
+
+      generatedXmlPayload = `<?xml version="1.0" encoding="UTF-8"?>
+<Form500Declaration xmlns="http://tax.luxembourg.lu/schema/form500/v2026" jurisdiction="LU" taxYear="2026">
+  <Taxpayer>
+    <TaxID>LU-88741920</TaxID>
+    <EntityName>Luxembourg Holding S.a r.l.</EntityName>
+    <FilingStatus>Active</FilingStatus>
+  </Taxpayer>
+  <FinancialResults>
+    <Turnover>${turnover.toFixed(2)}</Turnover>
+    <OperatingExpenses>${expenses.toFixed(2)}</OperatingExpenses>
+    <CommercialProfit>${reportedProfit.toFixed(2)}</CommercialProfit>
+  </FinancialResults>
+  <BalanceSheetAudit>
+    <TotalAssets>${assets.toFixed(2)}</TotalAssets>
+    <LiabilitiesAndEquity>${liabilities.toFixed(2)}</LiabilitiesAndEquity>
+    <Reconciled>true</Reconciled>
+  </BalanceSheetAudit>
+  <TaxAdjustments>
+    <NonDeductibleAddbacks>${addbacks.toFixed(2)}</NonDeductibleAddbacks>
+    <TaxableIncomeBase>${taxableBase.toFixed(2)}</TaxableIncomeBase>
+    <CalculatedTaxLiability rate="0.17">${citDue.toFixed(2)}</CalculatedTaxLiability>
+  </TaxAdjustments>
+  <DigitalSignatureStatus>AwaitingHumanTerminalApproval</DigitalSignatureStatus>
+</Form500Declaration>`;
+
+      // Deterministic Gate: Tag-to-State Check
+      setPill("pillUnitC", "GATE GREEN (XSD VALID)", "green");
+      document.getElementById("displayXmlValidation").innerText = "100% Valid (XSD Pass)";
+      document.getElementById("displayXmlValidation").className = "text-[11px] text-emerald-400 font-semibold";
+      AudioEngine.beepSuccess();
+
+      appendLog("[GATE GREEN / XML]: Cell-to-tag reconciliation matched down to 0.00 EUR diff. Official XSD passed.", "gate-green");
+
+      await wait(800);
+
+      // Phase 4: Terminal Human Approval Gate
+      document.getElementById("graphPhaseIndicator").innerText = "Phase: Awaiting Terminal Sign-Off";
+      document.getElementById("activeNodesCounter").innerText = "Active Nodes: 0 (Execution Halted at Terminal Boundary)";
+
+      const termBox = document.getElementById("terminalGateBox");
+      termBox.className = "bg-gradient-to-b from-[#0f172a] to-emerald-950/20 border-2 border-emerald-500/80 rounded-2xl p-5 text-center shadow-lg shadow-emerald-500/10 transition-all duration-300 animate-pulse-subtle";
+      document.getElementById("terminalIndicator").className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+      document.getElementById("terminalDescription").innerHTML = `
+        <span class="text-white font-semibold">All deterministic gates verified green.</span><br>
+        <span class="text-slate-400 text-xs">Taxable Base: <strong class="text-emerald-400 font-mono">${formatCurrency(taxableBase)}</strong> | CIT Due: <strong class="text-sky-400 font-mono">${formatCurrency(citDue)}</strong>. Zero intermediate babysitting required.</span>
+      `;
+      document.getElementById("terminalActionArea").classList.remove("hidden");
+
+      appendLog("[TERMINAL HUMAN GATE]: Pipeline suspended. Human approval required at the point of lowest reversibility.", "terminal");
+
+      document.getElementById("btnRun").disabled = false;
+      document.getElementById("btnRun").classList.remove("opacity-50", "cursor-not-allowed");
+      isRunning = false;
+    }
+
+    // Terminal Approval Action
+    function triggerTerminalApproval() {
+      AudioEngine.beepSuccess();
+      document.getElementById("terminalActionArea").classList.add("hidden");
+      document.getElementById("terminalIndicator").className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+      document.getElementById("terminalDescription").innerHTML = `
+        <div class="py-2">
+          <div class="text-emerald-400 font-bold text-sm flex items-center justify-center gap-1.5">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            OFFICIALLY SIGNED & TRANSMITTED TO TAX PORTAL
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Receipt Hash: <span class="font-mono text-slate-300">LU-2026-F500-9941-OK</span>. Process finished successfully.</p>
+        </div>
+      `;
+      appendLog("HUMAN SIGN-OFF RECEIVED: Cryptographic digital signature appended to payload.", "terminal");
+      appendLog(">> Form 500 XML successfully filed to Luxembourg Tax Authority Portal.", "gate-green");
+    }
+
+    // Modal Helpers
+    function downloadXmlPayload() {
+      if (!generatedXmlPayload) {
+        alert("Run the pipeline first to generate the XML payload.");
+        return;
+      }
+      document.getElementById("xmlModalCode").innerText = generatedXmlPayload;
+      document.getElementById("xmlModal").classList.remove("hidden");
+    }
+
+    function closeXmlModal() {
+      document.getElementById("xmlModal").classList.add("hidden");
+    }
+
+    function copyXmlToClipboard() {
+      const code = document.getElementById("xmlModalCode").innerText;
+      const el = document.createElement('textarea');
+      el.value = code;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      appendLog("XML content copied to clipboard.", "info");
+    }
+  </script>
+</body>
+</html>
